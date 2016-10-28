@@ -1,11 +1,74 @@
 <script>
-var recognition = new webkitSpeechRecognition();
-recognition.lang = 'en-US';
-recognition.interimResults = false;
-recognition.maxAlternatives = 5;
-recognition.start();
 
-recognition.onresult = function(event) {
-    console.log('You said: ', event.results[0][0].transcript);
-};
+recognizeCommand(function onResult(event){
+        var command = event.results[0][0].transcript
+        command = command.toLowerCase()
+
+        if( command === 'hello' ){
+                var text = 'Hello master'
+        }else if( command === 'how are you' ){
+                var text = 'Fine, ready to please'
+        }else if( command === 'open remote expert' ){
+                var text = 'You are the most expert'
+        }else if( command === 'open gallery' ){
+                var text = 'Vous etes si beau dans ce mirroir'
+        }else{
+                var text = command + ' is an unknown command'
+        }
+        
+        say( text, function(){
+                recognizeCommand(onResult)
+        })
+})
+
+function say(text, onEnd){
+        var utterance = new SpeechSynthesisUtterance(text);
+        utterance.addEventListener('end', function(){
+                console.log('stop talking')
+                onEnd()
+        })
+        speechSynthesis.speak(utterance);
+        
+}
+
+function recognizeCommand(onResult){        
+        console.log('listening')
+        var recognition = new webkitSpeechRecognition();
+        
+        
+        
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 100;
+
+        var colors = [ 'red' , 'green' , 'blue'];
+        var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
+        console.log(grammar)
+        var speechGrammarList = new webkitSpeechGrammarList();        
+        speechGrammarList.addFromString(grammar, 1);
+        recognition.grammars = speechGrammarList;
+        recognition.start();
+        
+        recognition.addEventListener('speechstart', function(event){
+                console.log('event speechstart', event)
+        })
+        recognition.addEventListener('speechend', function(event){
+                console.log('event speechend', event)
+        })
+        recognition.addEventListener('end', function(event){
+                console.log('event end', event)
+        })
+        recognition.addEventListener('error', function(event){
+                console.log('event error', event)
+        })
+        recognition.addEventListener('error', function(event){
+                console.log('event error', event)
+        })
+        recognition.addEventListener('result', function(event) {
+            console.log('You said: ', event.results[0][0].transcript, event);
+            onResult(event)
+        //     recognition.stop();
+        //     recognition.start();
+        })
+}
 </script>
