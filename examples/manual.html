@@ -28,25 +28,29 @@ function say(text, onEnd){
                 onEnd()
         })
         speechSynthesis.speak(utterance);
-        
 }
 
 function recognizeCommand(onResult){        
         console.log('listening')
         var recognition = new webkitSpeechRecognition();
         
-        
-        
         recognition.lang = 'en-US';
         recognition.interimResults = false;
         recognition.maxAlternatives = 100;
 
+        ////////////////////////////////////////////////////////////////////////////////
+        //          setup grammar
+        //          - not really supported
+        ////////////////////////////////////////////////////////////////////////////////
+        
         var colors = [ 'red' , 'green' , 'blue'];
         var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
         console.log(grammar)
         var speechGrammarList = new webkitSpeechGrammarList();        
         speechGrammarList.addFromString(grammar, 1);
         recognition.grammars = speechGrammarList;
+
+
         recognition.start();
         
         recognition.addEventListener('speechstart', function(event){
