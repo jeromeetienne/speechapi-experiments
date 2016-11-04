@@ -5,6 +5,7 @@ var WebSpeechCommands = function(){}
 ////////////////////////////////////////////////////////////////////////////////
 
 WebSpeechCommands.prototype.listen = function(onResult){
+        var _this = this
         console.log('listening')
         var recognition = new webkitSpeechRecognition();
         
@@ -24,6 +25,7 @@ WebSpeechCommands.prototype.listen = function(onResult){
         speechGrammarList.addFromString(grammar, 1);
         recognition.grammars = speechGrammarList;
 
+        var bestResultEvent = null
 
         recognition.start();
         
@@ -35,18 +37,20 @@ WebSpeechCommands.prototype.listen = function(onResult){
         })
         recognition.addEventListener('end', function(event){
                 console.log('event end', event)
+                onResult(bestResultEvent)
         })
         recognition.addEventListener('error', function(event){
                 console.log('event error', event)
+                if( event.error === 'no-speech' )       return
+
+                bestResultEvent = event
         })
         recognition.addEventListener('error', function(event){
                 console.log('event error', event)
         })
         recognition.addEventListener('result', function(event) {
-            console.log('You said: ', event.results[0][0].transcript, event);
-            onResult(event)
-        //     recognition.stop();
-        //     recognition.start();
+                console.log('You said: ', event.results[0][0].transcript, event);
+                bestResultEvent = event
         })        
 
 }
@@ -58,7 +62,7 @@ WebSpeechCommands.prototype.listen = function(onResult){
 WebSpeechCommands.prototype.say = function(text, onEnd){
         var utterance = new SpeechSynthesisUtterance(text);
         utterance.addEventListener('end', function(){
-                console.log('stop talking')
+                console.log('stop talking SpeechSynthesisUtterance')
                 onEnd()
         })
         speechSynthesis.speak(utterance);

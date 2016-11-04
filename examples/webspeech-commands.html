@@ -4,6 +4,13 @@
 var webSpeechCommands = new WebSpeechCommands()
 
 webSpeechCommands.listen(function onResult(event){
+        if( event === null ){
+		webSpeechCommands.say( 'An error occured, please try again', function(){
+	                webSpeechCommands.listen(onResult)
+	        })		
+		return
+	}
+        
         var command = event.results[0][0].transcript
         command = command.toLowerCase()
 
