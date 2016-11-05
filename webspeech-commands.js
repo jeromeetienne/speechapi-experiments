@@ -18,12 +18,17 @@ WebSpeechCommands.prototype.listen = function(onResult){
         //          - not really supported
         ////////////////////////////////////////////////////////////////////////////////
         
-        var colors = [ 'red' , 'green' , 'blue'];
-        var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
-        console.log(grammar)
-        var speechGrammarList = new webkitSpeechGrammarList();        
-        speechGrammarList.addFromString(grammar, 1);
-        recognition.grammars = speechGrammarList;
+        // var colors = [ 'red' , 'green' , 'blue'];
+        // var grammar = '#JSGF V1.0; grammar colors; public <color> = ' + colors.join(' | ') + ' ;'
+        // console.log(grammar)
+        // var speechGrammarList = new webkitSpeechGrammarList();        
+        // speechGrammarList.addFromString(grammar, 1);
+        // recognition.grammars = speechGrammarList;
+
+        ////////////////////////////////////////////////////////////////////////////////
+        //          Code Separator
+        ////////////////////////////////////////////////////////////////////////////////
+        
 
         var bestResultEvent = null
 

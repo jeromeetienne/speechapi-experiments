@@ -254,65 +254,66 @@ onRenderFcts.push(function(delta){
 </script>
 <script src="../webspeech-commands.js"></script>
 <script>
-var webSpeechCommands = new WebSpeechCommands()
+;(function(){
+return
+	var webSpeechCommands = new WebSpeechCommands()
 
-webSpeechCommands.listen(function onResult(event){
-	if( event === null ){
-                webSpeechCommands.listen(onResult)
-		return
-	}
-	if( event.type === 'error' ){
-		webSpeechCommands.say( 'An error occured, please try again', function(){
+	webSpeechCommands.listen(function onResult(event){
+		if( event === null ){
 	                webSpeechCommands.listen(onResult)
-	        })		
-		return
-	}
-	
-	
-        var command = event.results[0][0].transcript
-        command = command.toLowerCase()
-	console.log('received', command)
-	
-	var aliases = {
-		'hello' : ['hailo'],
-		'reset' : ['risen', 'resort', 'wizard'],
-		'ok helmet' : ['rodger helmer', 'hockey helmet']
-	}
-	
-	// if( command.startWith('ok helmet') )
-	
-        if( command === 'hello' || aliases['hello'].indexOf(command) !== -1 ){
-                var text = 'Hello master'
-        }else if( command === 'how are you' ){
-                var text = 'Fine, ready to please'
-        }else if( command === 'open remote expert' ){
-                var text = 'You are the most expert'
-	}else if( command === 'open gallery' ){
-                var text = 'Vous etes si beau dans ce mirroir'
-	}else if( command === 'reset' || aliases['reset'].indexOf(command) !== -1  ){
-		vrDisplay.resetPose();
-		var text = 'done, the ui is in front now'
-	}else if( command === 'bigger' ){
-		cube.scale.multiplyScalar(1.2)
-		var text = 'done, the object is bigger'
-	}else if( command === 'smaller' ){
-		cube.scale.multiplyScalar(1/1.2)
-		var text = 'done, the object is smaller'
-	}else if( command === 'stop' ){
-		cube.userData.angularSpeed =0
-		var text = 'done, the object is stopped'
-	}else if( command === 'start' ){
-		cube.userData.angularSpeed = 0.0006
-		var text = 'done, the object is turning'
-        }else{
-                var text = command + ' is an unknown command'
-        }
-        
-        webSpeechCommands.say( text, function(){
-                webSpeechCommands.listen(onResult)
-        })
-})
-
+			return
+		}
+		if( event.type === 'error' ){
+			webSpeechCommands.say( 'An error occured, please try again', function(){
+		                webSpeechCommands.listen(onResult)
+		        })		
+			return
+		}
+		
+		
+	        var command = event.results[0][0].transcript
+	        command = command.toLowerCase()
+		console.log('received', command)
+		
+		var aliases = {
+			'hello' : ['hailo'],
+			'reset' : ['risen', 'resort', 'wizard'],
+			'ok helmet' : ['rodger helmer', 'hockey helmet']
+		}
+		
+		// if( command.startWith('ok helmet') )
+		
+	        if( command === 'hello' || aliases['hello'].indexOf(command) !== -1 ){
+	                var text = 'Hello master'
+	        }else if( command === 'how are you' ){
+	                var text = 'Fine, ready to please'
+	        }else if( command === 'open remote expert' ){
+	                var text = 'You are the most expert'
+		}else if( command === 'open gallery' ){
+	                var text = 'Vous etes si beau dans ce mirroir'
+		}else if( command === 'reset' || aliases['reset'].indexOf(command) !== -1  ){
+			vrDisplay.resetPose();
+			var text = 'done, the ui is in front now'
+		}else if( command === 'bigger' ){
+			cube.scale.multiplyScalar(1.2)
+			var text = 'done, the object is bigger'
+		}else if( command === 'smaller' ){
+			cube.scale.multiplyScalar(1/1.2)
+			var text = 'done, the object is smaller'
+		}else if( command === 'stop' ){
+			cube.userData.angularSpeed =0
+			var text = 'done, the object is stopped'
+		}else if( command === 'start' ){
+			cube.userData.angularSpeed = 0.0006
+			var text = 'done, the object is turning'
+	        }else{
+	                var text = command + ' is an unknown command'
+	        }
+	        
+	        webSpeechCommands.say( text, function(){
+	                webSpeechCommands.listen(onResult)
+	        })
+	})
+})()
 </script>
-
 </html>
