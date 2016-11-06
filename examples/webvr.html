@@ -237,7 +237,7 @@ loader.load('images/box.png', function onTextureLoaded(texture) {
 });
 
 // Create 3D objects.
-var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+var geometry = new THREE.BoxGeometry(1, 0.1, 0.5);
 var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
 cube.position.z = -1
@@ -245,11 +245,11 @@ cube.position.z = -1
 // Add cube mesh to your three.js scene
 scene.add(cube);
 
-// Position cube mesh
-cube.userData.angularSpeed = 0.0006
-onRenderFcts.push(function(delta){
-	cube.rotation.y += delta * cube.userData.angularSpeed;
-})
+// // Position cube mesh
+// cube.userData.angularSpeed = 0.0006
+// onRenderFcts.push(function(delta){
+// 	cube.rotation.y += delta * cube.userData.angularSpeed;
+// })
 
 </script>
 <script src="../webspeech-commands.js"></script>
@@ -278,11 +278,8 @@ return
 		var aliases = {
 			'hello' : ['hailo'],
 			'reset' : ['risen', 'resort', 'wizard'],
-			'ok helmet' : ['rodger helmer', 'hockey helmet']
 		}
-		
-		// if( command.startWith('ok helmet') )
-		
+				
 	        if( command === 'hello' || aliases['hello'].indexOf(command) !== -1 ){
 	                var text = 'Hello master'
 	        }else if( command === 'how are you' ){
@@ -315,5 +312,28 @@ return
 	        })
 	})
 })()
+</script>
+
+
+<script src="http://192.168.0.2:3000/socket.io/socket.io.js"></script>
+<script>
+var socket = io('http://192.168.0.2:3000');
+socket.on('chat message', function(message){
+	var event = JSON.parse(message)
+	if( event.type === 'deviceOrientation' ){
+		// console.log('chat message', message)	
+		setOrientation(event.alpha, event.beta, event.gamma)
+	}
+	// console.log('chat message', message)
+})
+
+function setOrientation(alpha, beta, gamma){
+	cube.rotation.x = -gamma / 180 * Math.PI
+	cube.rotation.y = alpha / 180 * Math.PI
+	cube.rotation.z = -beta / 180 * Math.PI
+	cube.rotation.order = "YXZ"
+}
+
+
 </script>
 </html>

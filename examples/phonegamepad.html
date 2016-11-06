@@ -6,36 +6,8 @@
 <meta name='apple-mobile-web-app-capable' content='yes' />
 <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
 <head>
-        <title>Phone Gamepad</title>
+	<title>Phone Gamepad</title>
 </head>
-<script src="http://192.168.0.2:3000/socket.io/socket.io.js"></script>
-<script>
-var socket = io('http://192.168.0.2:3000');
-function send(){	
-	socket.emit('chat message', 'Sent from phone at '+(new Date));
-	setTimeout(send, 1000)
-}
-send()
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-//		forward the device orientation
-//////////////////////////////////////////////////////////////////////////////
-window.addEventListener("deviceorientation", onDeviceOrientation, true);
-function onDeviceOrientation(event) {
-	console.log('onDeviceOrientation')
-	var event = {
-		type : 'deviceOrientation',
-		absolute : event.absolute,
-		alpha : event.alpha,
-		beta : event.beta,
-		gamma : event.gamma,
-	}
-	socket.emit('chat message', 'json:'+JSON.stringify(event))
-}
-
-</script>
 <style>
 body, html, #container {
 	height: 100%;
@@ -44,9 +16,11 @@ body, html, #container {
 
 #container {
 	min-height:100%;
-
+	
 	color: 'black';
 	text-align:center;
+	font-family:arial;
+	font-weight: bolder;
 }
 
 #trackpad {
@@ -79,12 +53,44 @@ body, html, #container {
 
 </style>
 <div id="container">
-
-<div id="trackpad">Trackpad</div>    
-<div id="bottomRow">
-	<div id="button1">Button 1</div>
-	<div id="button2">Button 2</div>
+	
+	<div id="trackpad">Trackpad</div>    
+	<div id="bottomRow">
+		<div id="button1">Button 1</div>
+		<div id="button2">Button 2</div>
+	</div>
+	
 </div>
 
-</div>
+
+<script src="http://192.168.0.2:3000/socket.io/socket.io.js"></script>
+<script>
+var socket = io('http://192.168.0.2:3000');
+
+
+// function send(){	
+// 	socket.emit('chat message', 'Sent from phone at '+(new Date));
+// 	setTimeout(send, 1000)
+// }
+// send()
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//		forward the device orientation
+//////////////////////////////////////////////////////////////////////////////
+window.addEventListener("deviceorientation", onDeviceOrientation, true);
+function onDeviceOrientation(event) {
+	console.log('onDeviceOrientation')
+	var event = {
+		type : 'deviceOrientation',
+		absolute : event.absolute,
+		alpha : event.alpha,
+		beta : event.beta,
+		gamma : event.gamma,
+	}
+	socket.emit('chat message', JSON.stringify(event))
+}
+
+</script>
 </html>
