@@ -84,6 +84,10 @@ document.addEventListener('touchmove', function(event) {
 <!-- A polyfill for the WebVR API.  -->
 <script src='vendor/webvr-polyfill.js'></script>
 
+<script src='vendor/threex.laser/threex.laserbeam.js'></script>
+<script src='vendor/threex.laser/threex.lasercooked.js'></script>
+<script>THREEx.LaserCooked.baseURL	= 'vendor/threex.laser/';</script>
+
 
 <script>
 var onRenderFcts = []
@@ -218,7 +222,7 @@ function enterFullscreen (element) {
 //////////////////////////////////////////////////////////////////////////////
 
 // Add a repeating grid as a skybox.
-var boxWidth = 5;
+var boxWidth = 10;
 var loader = new THREE.TextureLoader();
 loader.load('images/box.png', function onTextureLoaded(texture) {
 	texture.wrapS = THREE.RepeatWrapping;
@@ -226,9 +230,11 @@ loader.load('images/box.png', function onTextureLoaded(texture) {
 	texture.repeat.set(boxWidth, boxWidth);
 	
 	var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
-	var material = new THREE.MeshBasicMaterial({
-		map: texture,
-		color: 0x01BE00,
+	var material = new THREE.MeshPhongMaterial({
+		// map: texture,
+		// color: 0x01BE00,
+		color	: 0xaa8888,
+		specular: 0xffffff,
 		side: THREE.BackSide
 	});
 	
@@ -237,7 +243,7 @@ loader.load('images/box.png', function onTextureLoaded(texture) {
 });
 
 // Create 3D objects.
-var geometry = new THREE.BoxGeometry(1, 0.1, 0.5);
+var geometry = new THREE.BoxGeometry(0.5*0.2, 0.1*0.2, 1*0.2);
 var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
 cube.position.z = -1
@@ -245,6 +251,14 @@ cube.position.z = -1
 // Add cube mesh to your three.js scene
 scene.add(cube);
 
+	//////////////////////////////////////////////////////////////////////////////////
+	//		comment								//
+	//////////////////////////////////////////////////////////////////////////////////
+
+	var light	= new THREE.HemisphereLight( 0xfffff0, 0x101020, 0.2 )
+	light.position.set( 0.75, 1, 0.25 )
+	scene.add(light)
+	
 // // Position cube mesh
 // cube.userData.angularSpeed = 0.0006
 // onRenderFcts.push(function(delta){
@@ -313,27 +327,107 @@ return
 	})
 })()
 </script>
+<script>
+	//////////////////////////////////////////////////////////////////////////////////
+	//		add an object and make it move					//
+	//////////////////////////////////////////////////////////////////////////////////
 
+	var laserBeam	= new THREEx.LaserBeam()
+	laserBeam.object3d.rotation.y = Math.PI/2
+	laserBeam.object3d.scale.x = 0.5
+	laserBeam.object3d.scale.z = 0.5
+	laserBeam.object3d.position.z = -0.5*0.2
+	cube.add(laserBeam.object3d)
+	// laserBeam.object3d.position.z	= -2
+	var laserCooked	= new THREEx.LaserCooked(laserBeam)
+	onRenderFcts.push(function(delta, now){
+		laserCooked.update(delta, now)
+	})
+</script>
 
 <script src="http://192.168.0.2:3000/socket.io/socket.io.js"></script>
 <script>
 var socket = io('http://192.168.0.2:3000');
+var first = null
 socket.on('chat message', function(message){
 	var event = JSON.parse(message)
 	if( event.type === 'deviceOrientation' ){
-		// console.log('chat message', message)	
-		setOrientation(event.alpha, event.beta, event.gamma)
+		// console.log('chat message', message)
+		if( first === null ){
+			first = {
+				alpha: event.alpha,
+				beta: event.beta,
+				gamma: event.gamma
+			}
+			console.log('init first', first)
+		}else{
+			setOrientation(cube, event.alpha-first.alpha, event.beta-first.beta, event.gamma-first.gamma)
+		}
+	}else if( event.type === 'click' && event.target === 'button1' ){
+		console.log('received click', laserCooked.lastIntersects)
+		var intersecting = laserCooked.lastIntersects.find(function(intersect){
+			var object3d = intersect.object
+			if( object3d.geometry === undefined ) return false
+			if( object3d.geometry instanceof THREE.TorusGeometry === false ) return false
+			return true
+		})
+		if( intersecting === undefined )	return
+		console.log('intersecting', intersecting)
+		intersecting.object.material.color.setHSL( Math.random(), 1, 0.5)
+		intersecting.object.scale.multiplyScalar(1.2)
+	}else if( event.type === 'click' && event.target === 'button2' ){
+		console.log('received click', laserCooked.lastIntersects)
+		var intersecting = laserCooked.lastIntersects.find(function(intersect){
+			var object3d = intersect.object
+			if( object3d.geometry === undefined ) return false
+			if( object3d.geometry instanceof THREE.TorusGeometry === false ) return false
+			return true
+		})
+		if( intersecting === undefined )	return
+		console.log('intersecting', intersecting)
+		intersecting.object.parent.remove(intersecting.object);
+		
 	}
+
 	// console.log('chat message', message)
 })
 
-function setOrientation(alpha, beta, gamma){
-	cube.rotation.x = -gamma / 180 * Math.PI
-	cube.rotation.y = alpha / 180 * Math.PI
-	cube.rotation.z = -beta / 180 * Math.PI
-	cube.rotation.order = "YXZ"
+function setOrientation(object3d, alpha, beta, gamma){
+	object3d.rotation.x =  beta  / 180 * Math.PI
+	object3d.rotation.y =  alpha / 180 * Math.PI
+	object3d.rotation.z = -gamma / 180 * Math.PI
+	object3d.rotation.order = "YXZ"
 }
 
 
+//////////////////////////////////////////////////////////////////////////////
+//		Code Separator
+//////////////////////////////////////////////////////////////////////////////
+	for(var i = 0; i < 200; i++){
+		(function(){
+			var geometry	= new THREE.TorusGeometry(0.5-0.15, 0.15, 32, 16);
+			//var geometry	= new THREE.SphereGeometry(0.5, 32, 16);
+			var material	= new THREE.MeshPhongMaterial({
+				color	: 0xffffff,
+				specular: 0xffffff,
+				shininess: 200,
+			});
+			var object3d	= new THREE.Mesh( geometry, material );
+			object3d.scale.set(1,1,1).multiplyScalar(1/2)
+			scene.add( object3d );
+			object3d.position.x	= (Math.random()-0.5)*10
+			object3d.position.y	= (Math.random()-0.5)*5
+			object3d.position.z	= (Math.random()-0.5)*10
+			
+			object3d.rotation.x	= (Math.random()-0.5)*Math.PI*2
+			object3d.rotation.y	= (Math.random()-0.5)*Math.PI*2
+			object3d.rotation.z	= (Math.random()-0.5)*Math.PI*2
+			
+			// onRenderFcts.push(function(delta, now){
+			// 	object3d.rotation.x += 1 * delta;
+			// 	object3d.rotation.y += 0.01;		
+			// })	
+		})()	
+	}
 </script>
 </html>
